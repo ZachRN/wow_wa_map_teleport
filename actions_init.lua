@@ -347,7 +347,7 @@ function Library:UpdateButtonsStyling()
 end
 
 function Library:Initialize()
-    if not IsAddOnLoaded("Blizzard_WorldMap") then
+    if not C_AddOns.IsAddOnLoaded("Blizzard_WorldMap") then
         self:RegisterEvent("ADDON_LOADED")
         return
     end
