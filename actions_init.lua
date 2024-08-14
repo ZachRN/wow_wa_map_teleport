@@ -184,11 +184,11 @@ function Library:CreateButton()
 
     function button:ShowWithSpell(spellId)
         if not spellId then return end
-        local _, _, spellIcon = C_Spell.GetSpellInfo(spellId)
+        local info = C_Spell.GetSpellInfo(spellId)
 
         self:SetAttribute("type", "spell")
         self:SetAttribute("spell", spellId)
-        self:SetNormalTexture(spellIcon)
+        self:SetNormalTexture(info.iconID)
 
         self:SetCooldownEnabled(IsSpellKnown(spellId))
         self:ApplyStyling()
@@ -202,14 +202,13 @@ function Library:CreateButton()
 
     function button:UpdateCooldown()
         local spellId = self:GetAttribute("spell")
-        local _, durationGCD = C_Spell.GetSpellCooldown(61304) -- Dont handle GCD
-        if not spellId or not IsSpellKnown(spellId) or durationGCD > 0 then return end
+        if not spellId or not IsSpellKnown(spellId) then return end
 
         local texture = self:GetNormalTexture()
-        local start, duration = C_Spell.GetSpellCooldown(spellId)
-        if duration > 0 then
+        local spellCD = C_Spell.GetSpellCooldown(spellId)
+        if spellCD.duration > 0 and spellCD.duration ~= WeakAuras.gcdDuration() then
             texture:SetDesaturated(true)
-            self.cooldown:SetCooldown(start, duration)
+            self.cooldown:SetCooldown(spellCD.startTime, spellCD.duration)
         else
             texture:SetDesaturated(false)
         end
@@ -282,9 +281,9 @@ function Library:CreateSpellColumn(currentMapId, mapToSpellTable, showUnknown)
     end
 
     table.sort(spells, function(a, b)
-            local nameA = C_Spell.GetSpellInfo(a)
-            local nameB = C_Spell.GetSpellInfo(b)
-            return nameA < nameB
+            local infoA = C_Spell.GetSpellInfo(a)
+            local infoB = C_Spell.GetSpellInfo(b)
+            return infoA.name < infoB.name
     end)
 
     local buttons = {}
